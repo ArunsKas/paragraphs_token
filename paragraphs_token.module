@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * Implements hook_token_info().
+ */
+function paragraphs_token_token_info() {
+  $info['tokens']['paragraphs_item']['parent-session'] = array(
+    'name' => t('Paragraphs Parent Node Session'),
+    'description' => t("Parent node Session."),
+    'type' => 'format',
+  );
+  $info['tokens']['paragraphs_item']['parent-title'] = array(
+    'name' => t('Paragraphs Parent Node Title'),
+    'description' => t("Parent node Title."),
+    'type' => 'format',
+  );
+  $info['tokens']['paragraphs_item']['parent-nid'] = array(
+    'name' => t('Paragraphs Parent Node NID'),
+    'description' => t("Parent node NID."),
+    'type' => 'format',
+  );
+  $info['tokens']['paragraphs_item']['parent-node'] = array(
+    'name' => t('Paragraphs Parent Node NID'),
+    'description' => t("Parent node NID."),
+    'type' => 'format',
+  );
+  return $info;
+}
+
+/**
+ * Implements hook_token_tokens().
+ */
+function paragraphs_token_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $replacements = array();
+  $sanitize = !empty($options['sanitize']);
+
+  if ($type == 'paragraphs_item' && !empty($data[$type])) {
+    $item = $data[$type];
+
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'parent-nid':
+          $pg = entity_load('paragraphs_item', array($item->item_id));
+          $host_entity = $pg[$item->item_id]->hostEntity();
+          $replacements[$original] = $host_entity->nid;
+          break;
+        case 'parent-title':
+          $pg = entity_load('paragraphs_item', array($item->item_id));
+          $host_entity = $pg[$item->item_id]->hostEntity();
+          $replacements[$original] = $host_entity->title;
+          break;
+        case 'parent-session':
+          $pg = entity_load('paragraphs_item', array($item->item_id));
+          $host_entity = $pg[$item->item_id]->hostEntity();
+          $wrapper = entity_metadata_wrapper('node', $host_entity);
+          $sessions = $wrapper->field_sessions->value();
+          $sess = $sessions[0];
+          $wrapper = entity_metadata_wrapper('taxonomy_term', $sess->tid);
+          $sess_short = $wrapper->field_session_short_name->value();
+          $replacements[$original] = $sess_short;
+          break;
+        case 'parent-node':
+          $pg = entity_load('paragraphs_item', array($item->item_id));
+          $host_entity = $pg[$item->item_id]->hostEntity();
+          $replacements[$original] = $host_entity->nid;
+          break;
+      }
+    }
+  }
+  return $replacements;
+}
+

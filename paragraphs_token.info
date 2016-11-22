@@ -1,0 +1,10 @@
+name = "Paragraphs Token"
+description = "Adds Node tokens for use with Paragraphs Entities, as per http://drupal.org/node/1372652"
+core = 7.x
+dependencies[] = entity
+dependencies[] = paragraphs
+dependencies[] = filefield_paths
+dependencies[] = entity_token
+
+version = "7.x-1.0-alpha1"
+
